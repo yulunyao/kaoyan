@@ -6,7 +6,7 @@
           <a-form :form='formParser(item.type)'>
             <a-col :span='12' v-for="(item1, index1) in item.children" :key="index1">
               <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                <a-input-number v-decorator='[{rules: {required: true}}]' :placeholder='`共` + item1.totalPage + `页`'></a-input-number>
+                <a-input-number :placeholder='`共` + item1.totalPage + `页`'></a-input-number>
               </a-form-item>
             </a-col>
           </a-form>
@@ -88,17 +88,17 @@ export default {
   },
   methods: {
     formParser(type) {
-      this.singleForm = this.$form.createForm(this)
+      this.singleForm = type
       return this.$form.createForm(this)
     },
     showModal(type) {
       console.log(type)
       this.submitQueue = type
-      this.singleForm.validateFields((err) => {
-        if(err) {
-          console.log('err')
-        }
-      })
+      // this.singleForm.validateFields((err) => {
+      //   if(err) {
+      //     console.log('err');
+      //   }
+      // })
       this.confirmVisible = !this.confirmVisible
     },
     handleOk(submitQueue) {
