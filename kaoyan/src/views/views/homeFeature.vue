@@ -2,21 +2,22 @@
   <div class="content">
     <a-row>
       <div v-for="(item, index) in formMock" :key="index" style="margin-bottom: 50px">
-        <a-divider>{{item.type}}</a-divider>
-          <a-form :form='formParser(item.type)'>
-            <a-col :span='12' v-for="(item1, index1) in item.children" :key="index1">
-              <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                <a-input-number :placeholder='`共` + item1.totalPage + `页`'></a-input-number>
-              </a-form-item>
-            </a-col>
-          </a-form>
-        <a-divider>
-          <a-button type='default' @click="showModal(item.type)">提交{{item.type}}进度</a-button>
+        <a-form :form='form'>
+          <a-divider>{{item.type}}</a-divider>
+              <a-col :span='12' v-for="(item1, index1) in item.children" :key="index1">
+                <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
+                  <a-input-number v-decorator="[item1.engName, { rules: [{ required: true, message: '请输入页码数!' }] },]" :placeholder='`共` + item1.totalPage + `页`'></a-input-number>
+                </a-form-item>
+              </a-col>
+              </a-form>
+          <a-divider>
+          <!-- <a-button type='default' @click="showModal(item.type)">提交{{item.type}}进度</a-button> -->
         </a-divider>
-        <a-modal :visible='confirmVisible' title='提交' @ok='handleOk(submitQueue)' @cancel='confirmVisible = !confirmVisible'>
-          此次提交的是【{{submitQueue}}】, 确认此次提交吗?
+        <a-modal :visible='confirmVisible' title='提交' @ok='handleOk()' @cancel='confirmVisible = !confirmVisible'>
+          请确认上述信息，确认此次提交吗?
         </a-modal>
       </div>
+      <a-button type='default' @click='showModal()'>提交进度</a-button>
     </a-row>
   </div>
 </template>
@@ -25,7 +26,7 @@
 export default {
   data() {
     return {
-      singleForm: '',
+      form: this.$form.createForm(this),
       confirmVisible: false,
       submitQueue: '',
       formMock: [
@@ -87,26 +88,24 @@ export default {
     }
   },
   methods: {
-    formParser(type) {
-      this.singleForm = type
+    formParser(name) {
+      this.singleForm = name
       return this.$form.createForm(this)
     },
     showModal(type) {
       console.log(type)
       this.submitQueue = type
-      // this.singleForm.validateFields((err) => {
-      //   if(err) {
-      //     console.log('err');
-      //   }
-      // })
-      this.confirmVisible = !this.confirmVisible
+      this.form.validateFields((err) => {
+        if(err) {
+          // console.log('err')
+          this.confirmVisible = !this.confirmVisible
+        } else {
+          this.confirmVisible = !this.confirmVisible
+        }
+      })
     },
-    handleOk(submitQueue) {
-      if(!!submitQueue) {
-        this.confirmVisible = !this.confirmVisible
-      } else {
-        this.$message.error('无submitQueue值')
-      }
+    handleOk() {
+      alert(JSON.stringify(this.form.getFieldsValue()))
     }
   },
 }
