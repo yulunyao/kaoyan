@@ -4,9 +4,15 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import 'ant-design-vue/dist/antd.css'
+import ajax from '@/server/ajax.js'
+import api from '@/server/api.js'
+import jscookie from 'js-cookie'
 
 import {
+  Avatar,
+  message,
   Button,
+  Progress,
   Spin,
   Layout,
   Menu,
@@ -50,7 +56,14 @@ import {
   // CollapsePanel
 } from 'ant-design-vue'
 
+Vue.prototype.$ajax = ajax
+Vue.prototype.$api = api
+Vue.prototype.$message = message
+Vue.prototype.$cookie = jscookie
+
+Vue.use(Avatar)
 Vue.use(Button)
+Vue.use(Progress)
 Vue.use(Spin)
 Vue.use(Layout)
 Vue.use(Menu)
