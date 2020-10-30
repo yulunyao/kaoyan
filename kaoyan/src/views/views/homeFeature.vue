@@ -1,6 +1,14 @@
 <template>
   <div class="content">
     <a-row>
+      <a-button type="default" icon="snippets" size="large" @click="createSubject">
+        新建学科
+      </a-button>
+      <a-button type="default" icon="book" size="large" @click="createBook">
+        新建书籍
+      </a-button>
+    </a-row>
+    <a-row>
       <div v-for="(item, index) in formMock" :key="index" style="margin-bottom: 50px">
         <a-form :form='form'>
           <a-divider>{{item.type}}</a-divider>
@@ -26,6 +34,17 @@
       </div>
       <a-button type='default' @click='showModal()'>提交进度</a-button>
     </a-row>
+    <a-modal title='新建科目' :visible='subjectVisible' @ok='handleSubject'>
+        <a-form :form='subjectForm'>
+          <a-form-item :label='`选项` + index' :label-col="{span:4}" :wrapper-col="{span:20}" v-for="(item, index) in items" :key="index">
+            <a-input v-decorator="[item.name, {rules: [{ message: '请输入学科名!' }] },]" placeholder='请输入学科名'></a-input>
+          </a-form-item>
+        </a-form>
+      </a-modal>
+
+      <a-modal :visible='bookVisible' @ok='handleBook'>
+        <a-form :form='bookForm'></a-form>
+      </a-modal>
   </div>
 </template>
 
@@ -34,8 +53,29 @@ export default {
   data() {
     return {
       form: this.$form.createForm(this),
+      subjectForm: this.$form.createForm(this),
+      bookForm: this.$form.createForm(this),
       confirmVisible: false,
+      subjectVisible: false,
+      bookVisible: false,
       submitQueue: '',
+      items: [
+        {
+          name: 'op1',
+        },
+        {
+          name: 'op2',
+        },
+        {
+          name: 'op3',
+        },
+        {
+          name: 'op4',
+        },
+        {
+          name: 'op5',
+        }
+      ],
       formMock: [
         {
           type: '中文',
@@ -115,6 +155,29 @@ export default {
     },
     handleOk() {
       alert(JSON.stringify(this.form.getFieldsValue()))
+    },
+    createSubject() {
+      this.subjectVisible = !this.subjectVisible
+    },
+    handleSubject() {
+      this.subjectForm.validateFields((err) => {
+        if(!err) {
+          const params = this.subjectForm.getFieldsValue()
+          console.log(params)
+          this.$ajax.post({
+            url: this.$api.POST_SUBJECTS,
+            params: params
+          }).then(res => {})
+          this.subjectForm.resetFields()
+        }
+      })
+      this.subjectVisible = !this.subjectVisible
+    },
+    createBook() {
+      this.bookVisible = !this.bookVisible
+    },
+    handleBook() {
+      this.bookVisible = !this.bookVisible
     }
   },
 }

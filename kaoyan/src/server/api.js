@@ -6,5 +6,6 @@ export default {
    */
   BASE_URL, 
   POST_LOGIN: BASE_URL + '/users/login',
-  POST_USER_INFO: BASE_URL + '/users/token'
+  POST_USER_INFO: BASE_URL + '/users/token',
+  POST_SUBJECTS: BASE_URL + '/subjects'
 }

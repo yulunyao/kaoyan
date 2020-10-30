@@ -4,7 +4,9 @@
       <a-layout>
         <a-layout-header>
           <a-row>
-            <a-col :span='20'></a-col>
+            <a-col :span='20'>
+              {{wuhua}}
+            </a-col>
             <a-col :span='1'>
               <a-avatar
                 shape="square"
@@ -30,7 +32,7 @@
             <router-view />
           </a-layout-content>
         </a-layout>
-        <!-- <a-layout-footer>Footer</a-layout-footer> -->
+        <a-layout-footer>Footer</a-layout-footer>
       </a-layout>
       <a-modal :visible='visible' @ok='handleLogOut'>
         确认注销吗?
@@ -45,13 +47,15 @@ export default {
     return {
       color: 'grey',
       avatarValue: '姚雨仑',
-      visible: false
+      visible: false,
+      wuhua: ''
     }
   },
   mounted() {
     let token = this.$cookie.get('token')
     if(!!token) {
       this.getUserInfoByToken()
+      // this.loadWuhua()
     }
   },
   methods: {
@@ -70,7 +74,7 @@ export default {
       this.$router.push({
         name: 'login'
       })
-    }
+    },
   },
 }
 </script>
@@ -81,7 +85,7 @@ export default {
 }
 #components-layout-demo-basic .ant-layout-header,
 #components-layout-demo-basic .ant-layout-footer {
-  background: #7dbcea;
+  background: #3ba0e9;
   /* background: white; */
   /* color: #fff; */
   color: grey
