@@ -85,7 +85,7 @@
                 <a-col :span='21' :offset='1'>
                   <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
                     <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                      <a-input-number v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ required: true, message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName)">编辑</a-button>
+                      <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName)">编辑</a-button>
                     </a-form-item>
                   </a-col>
                 </a-col>
@@ -370,6 +370,8 @@ export default {
               this.getSubjectList()
             }
           })
+
+          this.bookForm.resetFields()
         }
       })
       this.bookVisible = !this.bookVisible
@@ -402,6 +404,7 @@ export default {
               }
             })
           }
+          this.pageNoForm.resetFields()
         }
       })
     },
