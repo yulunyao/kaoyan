@@ -3,11 +3,12 @@
     <div id="components-layout-demo-basic">
       <a-layout>
         <a-layout-header>
-          <a-row>
-            <a-col :span='20'>
-              {{wuhua}}
+          <a-row type="flex" style="text-align: left">
+            <a-col :span='5'>
+              <img src="@/assets/images/logo.png" width='60'/>
+              <span>考研计算器</span>
             </a-col>
-            <a-col :span='1'>
+            <a-col :span='1' :offset='14'>
               <a-avatar
                 shape="square"
                 size="large"
@@ -16,7 +17,7 @@
                 {{ avatarValue }}
               </a-avatar>
             </a-col>
-            <a-col :span='2'>当前用户: {{avatarValue}}</a-col>
+            <a-col :span='3'>当前用户: {{avatarValue}}</a-col>
             <a-col :span='1'>
               <a-button type="link" block @click="showModal">
                 注销
@@ -25,16 +26,16 @@
           </a-row>
         </a-layout-header>
         <a-layout>
-          <a-layout-sider>
+          <!-- <a-layout-sider>
             123
-          </a-layout-sider>
+          </a-layout-sider> -->
           <a-layout-content>
             <router-view />
           </a-layout-content>
         </a-layout>
         <a-layout-footer>Footer</a-layout-footer>
       </a-layout>
-      <a-modal :visible='visible' @ok='handleLogOut'>
+      <a-modal :visible='visible' @ok='handleLogOut' @cancel='handleCancel'>
         确认注销吗?
       </a-modal>
     </div>
@@ -75,6 +76,9 @@ export default {
         name: 'login'
       })
     },
+    handleCancel() {
+      this.visible = !this.visible
+    }
   },
 }
 </script>
@@ -85,8 +89,8 @@ export default {
 }
 #components-layout-demo-basic .ant-layout-header,
 #components-layout-demo-basic .ant-layout-footer {
-  background: #3ba0e9;
-  /* background: white; */
+  /* background: #3ba0e9; */
+  background: black;
   /* color: #fff; */
   color: grey
 }
@@ -94,8 +98,8 @@ export default {
   line-height: 1.5;
 }
 #components-layout-demo-basic .ant-layout-sider {
-  background: #3ba0e9;
-  /* background: white; */
+  /* background: #3ba0e9; */
+  background: black;
   color: #fff;
   line-height: 120px;
 }

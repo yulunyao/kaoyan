@@ -7,5 +7,8 @@ export default {
   BASE_URL, 
   POST_LOGIN: BASE_URL + '/users/login',
   POST_USER_INFO: BASE_URL + '/users/token',
-  POST_SUBJECTS: BASE_URL + '/subjects'
+  POST_SUBJECTS: BASE_URL + '/subjects',
+  GET_SUBJECTS_LIST: BASE_URL + '/subjects',
+  POST_BOOKS_LIST: BASE_URL + '/subjects/book',
+  POST_BOOKS_PAGE: BASE_URL + '/subjects/updatebook'
 }

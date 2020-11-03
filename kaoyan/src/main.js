@@ -9,6 +9,10 @@ import api from '@/server/api.js'
 import jscookie from 'js-cookie'
 
 import {
+  Switch,
+  ConfigProvider,
+  Statistic,
+  Timeline,
   Avatar,
   message,
   Button,
@@ -62,6 +66,10 @@ Vue.prototype.$message = message
 Vue.prototype.$cookie = jscookie
 
 Vue.use(Avatar)
+Vue.use(Switch)
+Vue.use(ConfigProvider)
+Vue.use(Statistic)
+Vue.use(Timeline)
 Vue.use(Button)
 Vue.use(Progress)
 Vue.use(Spin)
