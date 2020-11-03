@@ -76,17 +76,16 @@
           <a-form :form='form'>
             <a-divider>{{item.subject}}</a-divider>
               <a-row type='flex'>
-                <a-col :span='2'>
-                  <div v-for="(item1, index1) in finishPercentage[index]" :key="index1">
-                    {{compute(item.subject, finishPercentage[index][index1].pageCount, finishPercentage[index][index1].totalPage)}}
-                  </div>
-                  <a-progress type="circle" :percent="item.finishPercentage"/>
-                </a-col>
-                <a-col :span='21' :offset='1'>
+                <a-col :span='24'>
                   <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
-                    <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                      <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName)">编辑</a-button>
-                    </a-form-item>
+                    <a-col :span='2'>
+                      <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(1)"/>
+                    </a-col>
+                    <a-col :span='20'>
+                      <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
+                        <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName)">编辑</a-button>
+                      </a-form-item>
+                    </a-col>
                   </a-col>
                 </a-col>
               </a-row>
