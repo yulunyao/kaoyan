@@ -8,6 +8,10 @@ import ajax from '@/server/ajax.js'
 import api from '@/server/api.js'
 import jscookie from 'js-cookie'
 
+import moment from 'moment'
+import 'moment/locale/zh-cn'
+moment.locale('zh-cn')  
+
 import {
   Switch,
   ConfigProvider,
@@ -64,6 +68,7 @@ Vue.prototype.$ajax = ajax
 Vue.prototype.$api = api
 Vue.prototype.$message = message
 Vue.prototype.$cookie = jscookie
+Vue.prototype.$moment = moment
 
 Vue.use(Avatar)
 Vue.use(Switch)

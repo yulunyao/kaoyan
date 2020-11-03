@@ -40,17 +40,17 @@
             </a-statistic>
           </a-card>
 
-          <a-card class='countDownCard'>
+          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px ` + completePercentageColor">
             <a-statistic
               title="总完成率"
               :value="(totalReadPage/totalBookPage) * 100"
               :precision="2"
               suffix="%"
-              :value-style="(totalReadPage/totalBookPage) * 100 > 50 ? { color: 'red' } : { color: 'green' } "
+              :value-style="{ color: completePercentageColor }"
               style="margin-right: 50px"
             >
               <template #prefix>
-                <a-icon :type="(totalReadPage/totalBookPage) * 100 > 50 ? `rise` : `fall`" />
+                <a-icon :type="(totalReadPage/totalBookPage) * 100 > 50 ? `check-circle` : `close-circle`" />
               </template>
             </a-statistic>
           </a-card>
@@ -58,14 +58,14 @@
           <a-card class='countDownCard'>
             <a-statistic
               title="今日目标完成率"
-              :value="purposePercentage"
+              :value="purposePercentage * 100"
               :precision="2"
               suffix="%"
-              :value-style="(totalReadPage/totalBookPage) * 100 > 50 ? { color: 'red' } : { color: 'green' } "
+              :value-style="{ color: purposePercentageColor } "
               style="margin-right: 50px"
             >
               <template #prefix>
-                <a-icon :type="(totalReadPage/totalBookPage) * 100 > 50 ? `rise` : `fall`" />
+                <a-icon :type="(totalReadPage/totalBookPage) > purposePercentage ? `close-circle` : `check-circle`" />
               </template>
             </a-statistic>
           </a-card>
@@ -75,8 +75,11 @@
         <div v-for="(item, index) in realForm" :key="index" style="margin-bottom: 50px">
           <a-form :form='form'>
             <a-divider>{{item.subject}}</a-divider>
-              <a-row>
+              <a-row type='flex'>
                 <a-col :span='2'>
+                  <div v-for="(item1, index1) in finishPercentage[index]" :key="index1">
+                    {{compute(item.subject, finishPercentage[index][index1].pageCount, finishPercentage[index][index1].totalPage)}}
+                  </div>
                   <a-progress type="circle" :percent="item.finishPercentage"/>
                 </a-col>
                 <a-col :span='21' :offset='1'>
@@ -137,6 +140,7 @@ export default {
       subjectForm: this.$form.createForm(this),
       bookForm: this.$form.createForm(this),
       pageNoForm: this.$form.createForm(this),
+      aList: [],
       confirmVisible: false,
       subjectVisible: false,
       bookVisible: false,
@@ -146,6 +150,8 @@ export default {
       addToWhichSubject: '',
       submitQueue: '',
       finishPercentage: [],
+      completePercentageColor: '',
+      purposePercentageColor: '',
       totalBookPage: 0,
       totalReadPage: 0,
       purposePercentage: 0,
@@ -230,15 +236,11 @@ export default {
     }
   },
   mounted() {
-    this.getSubjectList(),
-    this.getPurposePercentage()
+    this.getSubjectList()
   },
   methods: {
-    getPurposePercentage() {
-      // 12月26日的时间戳 - 当前时间的时间戳得到剩余时间的时间戳
-      // 将该时间戳转为天数，用100 / 天数 得到每天需要增加的百分比
-    },
     getSubjectList() {
+      let aList = []
       this.finishPercentage = []
       this.totalReadPage = 0
       this.totalBookPage = 0
@@ -258,8 +260,37 @@ export default {
               // this.finishPercentage.push(content[i].lessons[j].totalPage)
             }
           }
-          console.log(JSON.stringify(this.finishPercentage))
+          // console.log(JSON.stringify(this.finishPercentage))
+          // let listA = []
+          // for(let i = 0; i < this.finishPercentage.length; i++) {
+          //   listA.push({})
+          // }
           console.log([this.totalReadPage, this.totalBookPage])
+
+          // 计算每天的目标完成率
+          let dayLeft
+          let readToTotalRatio = this.totalReadPage / this.totalBookPage
+          let percentageLeft = 1 - readToTotalRatio // 剩余的百分比
+          // 用剩余的百分比除以剩余时间 + 每天需要的百分比
+          let currentTime = Date.now()
+          if(currentTime) {
+            let timestampLeft = this.deadline - currentTime
+            dayLeft = this.$moment(this.deadline).diff(currentTime, 'days')
+            // console.log((percentageLeft * 100 / dayLeft) + readToTotalRatio)
+            this.purposePercentage = (percentageLeft / dayLeft) + readToTotalRatio
+
+            if(readToTotalRatio > this.purposePercentage) {
+              this.purposePercentageColor = 'red'
+            } else {
+              this.purposePercentageColor = 'light-green'
+            }
+
+            if(readToTotalRatio > 0.5) {
+              this.completePercentageColor = 'lightgreen'
+            } else {
+              this.completePercentageColor = 'red'
+            }
+          }
         }
       })
     },
@@ -388,6 +419,13 @@ export default {
     },
     handleWinnieSnow(check) {
       this.isShow = check
+    },
+    compute(item, read, total) {
+      let aList = {}
+      console.log([item, read, total])
+      // aList[item][read] += read
+      // aList[item][total] += total
+      console.log(aList)
     }
   },
 }
@@ -404,7 +442,7 @@ export default {
   }
 
   .right-content {
-    padding: 10px;
+    padding: 40px;
     border: 1px solid lightgray;
     border-radius: 10px;
     box-shadow: 0px 0px 50px 5px #cccccc;
@@ -414,10 +452,10 @@ export default {
   }
 
   .countDownCard {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     text-align: left;
     width: 100%;
-    box-shadow: 0px 0px 50px 5px #99e3e4;
+    box-shadow: 0px 0px 20px 5px #99e3e4;
   }
 
   .winnieSnow{
