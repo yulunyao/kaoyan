@@ -61,6 +61,21 @@
               :value="purposePercentage * 100"
               :precision="2"
               suffix="%"
+              value-style="{ color: grey } "
+              style="margin-right: 50px"
+            >
+              <template #prefix>
+                <a-icon type="clock-circle" />
+              </template>
+            </a-statistic>
+          </a-card>
+
+          <a-card class='countDownCard'>
+            <a-statistic
+              title="今日已完成率"
+              :value="purposePercentage * 100"
+              :precision="2"
+              suffix="%"
               :value-style="{ color: purposePercentageColor } "
               style="margin-right: 50px"
             >
@@ -79,11 +94,11 @@
                 <a-col :span='24'>
                   <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
                     <a-col :span='2'>
-                      <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(1)"/>
+                      <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(0)"/>
                     </a-col>
                     <a-col :span='20'>
                       <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                        <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName)">编辑</a-button>
+                        <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName, item1.pageCount, item1.totalPage)">编辑</a-button>
                       </a-form-item>
                     </a-col>
                   </a-col>
@@ -123,7 +138,7 @@
           <a-form-item label='已看页码' :label-col="{span:4}" :wrapper-col="{span:20}">
             <a-input-number v-decorator="['seenPage', {rules: [{ required: true, message: '已经看到的页码!' }] },]" placeholder='已经看到的页码!'></a-input-number>
           </a-form-item>
-          <a-form-item label='总页码' :label-col="{span:4}" :wrapper-col="{span:20}">
+          <a-form-item label='总页码' :label-col="{span:4}" :wrapper-col="{span:20}" v-show="initSet">
             <a-input-number v-decorator="['totalPage', {rules: [{ required: true, message: '请输入总页码!' }] },]" placeholder='请输入总页码!'></a-input-number>
           </a-form-item>
         </a-form>
@@ -154,6 +169,7 @@ export default {
       totalBookPage: 0,
       totalReadPage: 0,
       purposePercentage: 0,
+      initSet: true,
       isShow: false,
       items: [
         {
@@ -276,7 +292,8 @@ export default {
             let timestampLeft = this.deadline - currentTime
             dayLeft = this.$moment(this.deadline).diff(currentTime, 'days')
             // console.log((percentageLeft * 100 / dayLeft) + readToTotalRatio)
-            this.purposePercentage = (percentageLeft / dayLeft) + readToTotalRatio
+            // this.purposePercentage = (percentageLeft / dayLeft) + readToTotalRatio
+            this.purposePercentage = percentageLeft / dayLeft
 
             if(readToTotalRatio > this.purposePercentage) {
               this.purposePercentageColor = 'red'
@@ -351,8 +368,8 @@ export default {
                 {
                   subject: Object.values(params)[i],
                   engName: Object.values(params)[i],
-                  pageCount: '0',
-                  totalPage: '399'
+                  pageCount: '-',
+                  totalPage: '-'
                 }
               )
             }
@@ -375,9 +392,17 @@ export default {
       })
       this.bookVisible = !this.bookVisible
     },
-    changePageNo(subjectName, bookName) {
+    changePageNo(subjectName, bookName, pageCount, totalPage) {
       this.currentEditSubject = subjectName
       this.currentEditBook = bookName
+      // '-'代表该书籍为第一次编辑，则输入框不应disable。往后需要diabled
+      if(totalPage == '-') {
+        this.initSet = true
+      } else {
+        this.initSet = false
+      }
+      this.pageNoForm.setFieldsValue({'seenPage': pageCount})
+      this.pageNoForm.setFieldsValue({'totalPage': totalPage})
       this.pageNoVisible = !this.pageNoVisible
       console.log([subjectName, bookName])
     },
