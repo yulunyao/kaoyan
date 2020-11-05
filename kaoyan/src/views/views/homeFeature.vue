@@ -169,7 +169,7 @@
       </a-modal>
 
       <a-modal title='学习历史' :visible='historyVisible' @ok='handleHistory' @cancel='handleHistoryCancel'>
-        <a-table size='small' :columns="columns" rowKey="today_date" :dataSource="dataSource">
+        <a-table size='small' :columns="columns" :dataSource="dataSource">
 
         </a-table>
       </a-modal>
@@ -180,6 +180,7 @@
 export default {
   data() {
     return {
+      dataSource: [],
       leftSpin: true,
       loadPageSpin: true,
       form: this.$form.createForm(this),
@@ -213,8 +214,8 @@ export default {
         },
         {
           title: '页码',
-          dataIndex: 'progress',
-          key: 'progress'
+          dataIndex: 'today_progress',
+          key: 'today_progress'
         },
       ],
       items: [
@@ -236,64 +237,6 @@ export default {
       ],
       realForm: [],
       deadline: 1608911999000,
-      formMock: [
-        {
-          type: '中文',
-          engName: 'Chinese',
-          finishPercentage: 23,
-          children: [
-            {
-              subject: '文艺理论',
-              engName: 'wyll',
-              pageCount: '233',
-              totalPage: '499',
-            },
-            {
-              subject: '中国现当代文学',
-              engName: 'zgxddwx',
-              pageCount: '233',
-              totalPage: '499'
-            },
-            {
-              subject: '中国古代文学',
-              engName: 'zggdwx',
-              pageCount: '233',
-              totalPage: '499'
-            },
-            {
-              subject: '外国文学',
-              engName: 'wgwx',
-              pageCount: '233',
-              totalPage: '499'
-            }
-          ]
-        },
-        {
-          type: '教育',
-          engName: 'Education',
-          finishPercentage: 100,
-          children: [
-            {
-              subject: '333中外教育史',
-              engName: 'zwjys',
-              pageCount: '233',
-              totalPage: '499'
-            },
-            {
-              subject: '333教育原理',
-              engName: 'jyyl',
-              pageCount: '233',
-              totalPage: '499'
-            },
-            {
-              subject: '333教育心理学',
-              engName: 'jyxlx',
-              pageCount: '233',
-              totalPage: '499'
-            },
-          ]
-        }
-      ]
     }
   },
   mounted() {
@@ -496,16 +439,20 @@ export default {
       // aList[item][total] += total
       console.log(aList)
     },
-    retrieveLearnHistory() {},
+    retrieveLearnHistory() {
+      this.$ajax.get({
+        url: this.$api.GET_STUDY_HISTORY
+      }).then(res => {
+        console.log(JSON.stringify(res))
+        this.historyVisible = !this.historyVisible
+        this.dataSource = res
+      })
+    },
     handleHistoryCancel() {
       this.historyVisible = !this.historyVisible
     },
     handleHistory() {
-      this.$ajax.get({
-        url: this.$api.GET_STUDY_HISTORY
-      }).then(res => {
-        console.log(res)
-      })
+      
     }
   },
 }
