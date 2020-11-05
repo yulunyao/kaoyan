@@ -65,6 +65,7 @@ export default {
         url: this.$api.POST_USER_INFO
       }).then(res => { 
         this.avatarValue = res.name
+        this.$cookie.set('name', res.name)
       })
     },
     showModal() {

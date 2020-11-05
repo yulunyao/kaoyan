@@ -70,17 +70,17 @@
             </a-statistic>
           </a-card>
 
-          <a-card class='countDownCard'>
+          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px grey`">
             <a-statistic
               title="今日已完成率"
-              :value="purposePercentage * 100"
+              :value="todayFinishPercentage * 100"
               :precision="2"
               suffix="%"
-              :value-style="{ color: purposePercentageColor } "
+              :value-style="todayFinishPercentage < purposePercentage ? { color: `red` }:{ color: `lightgreen` }"
               style="margin-right: 50px"
             >
               <template #prefix>
-                <a-icon :type="(totalReadPage/totalBookPage) > purposePercentage ? `close-circle` : `check-circle`" />
+                <a-icon :type="todayFinishPercentage < purposePercentage ? `close-circle` : `check-circle`" />
               </template>
             </a-statistic>
           </a-card>
@@ -169,6 +169,7 @@ export default {
       totalBookPage: 0,
       totalReadPage: 0,
       purposePercentage: 0,
+      todayFinishPercentage: 0,
       initSet: true,
       isShow: false,
       items: [
@@ -275,32 +276,26 @@ export default {
               // this.finishPercentage.push(content[i].lessons[j].totalPage)
             }
           }
-          // console.log(JSON.stringify(this.finishPercentage))
-          // let listA = []
-          // for(let i = 0; i < this.finishPercentage.length; i++) {
-          //   listA.push({})
-          // }
-          console.log([this.totalReadPage, this.totalBookPage])
 
+          console.log([this.totalReadPage, this.totalBookPage])
           // 计算每天的目标完成率
           let dayLeft
           let readToTotalRatio = this.totalReadPage / this.totalBookPage
           let percentageLeft = 1 - readToTotalRatio // 剩余的百分比
           // 用剩余的百分比除以剩余时间 + 每天需要的百分比
           let currentTime = Date.now()
+          this.todayFinishPercentage = res.data.progress / this.totalBookPage
           if(currentTime) {
             let timestampLeft = this.deadline - currentTime
             dayLeft = this.$moment(this.deadline).diff(currentTime, 'days')
             // console.log((percentageLeft * 100 / dayLeft) + readToTotalRatio)
             // this.purposePercentage = (percentageLeft / dayLeft) + readToTotalRatio
             this.purposePercentage = percentageLeft / dayLeft
-
             if(readToTotalRatio > this.purposePercentage) {
               this.purposePercentageColor = 'red'
             } else {
               this.purposePercentageColor = 'light-green'
             }
-
             if(readToTotalRatio > 0.5) {
               this.completePercentageColor = 'lightgreen'
             } else {
@@ -386,7 +381,6 @@ export default {
               this.getSubjectList()
             }
           })
-
           this.bookForm.resetFields()
         }
       })
@@ -410,12 +404,13 @@ export default {
       this.pageNoForm.validateFields((err) => {
         if(!err) {
           const params = {
+            'name': this.$cookie.get('name'),
+            'today_date': this.$moment().format('L'),
             'subject': this.currentEditSubject,
             'book': this.currentEditBook,
             'pageCount': this.pageNoForm.getFieldValue('seenPage'),
             'totalPage': this.pageNoForm.getFieldValue('totalPage')
           }
-
           if(params) {
             this.$ajax.post({
               url: this.$api.POST_BOOKS_PAGE,
@@ -463,11 +458,9 @@ export default {
     width: 90%;
     margin: 0 auto;
   }
-
   .formStyle {
     background-color: greenyellow;
   }
-
   .right-content {
     padding: 40px;
     border: 1px solid lightgray;
@@ -477,14 +470,12 @@ export default {
     height: 700px;
     overflow: scroll
   }
-
   .countDownCard {
     margin-bottom: 20px;
     text-align: left;
     width: 100%;
     box-shadow: 0px 0px 20px 5px #99e3e4;
   }
-
   .winnieSnow{
     margin: 10px 0px;
   }
