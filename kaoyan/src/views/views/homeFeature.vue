@@ -1,12 +1,17 @@
 <template>
   <div class="content">
     <a-row>
-      <a-col :span='4' style="text-align: left">
+      <a-col :span='3' style="text-align: left">
         <a-button type="default" icon="snippets" size="large" @click="createSubject">
           新建学科
         </a-button>
       </a-col>
-      <a-col :span='17' :offset='3'>
+      <a-col :span='3' style="text-align: left">
+        <a-button type="default" icon="history" size="large" @click="retrieveLearnHistory">
+          查看学习历史
+        </a-button>
+      </a-col>
+      <a-col :span='17' :offset='1'>
         <a-row type='flex' align='middle' justify='space-between' class="winnieSnow">
           <!-- <img src="@/assets/images/snowwhite.png" height='150' style="text-align='left'"/>
           <img src="@/assets/images/winnie.png" height='150'/> -->
@@ -31,90 +36,109 @@
           </a-card>
 
           <a-card class='countDownCard'>
-            <a-statistic
-              title="总科目数"
-              :value="realForm.length + ` 门科目`"
-              :precision="2"
-              style="margin-right: 50px"
-            >
-            </a-statistic>
+            <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
+              <div class="spin-content">
+                <a-statistic
+                  title="总科目数"
+                  :value="realForm.length + ` 门科目`"
+                  :precision="2"
+                  style="margin-right: 50px"
+                />
+              </div>
+            </a-spin>
           </a-card>
 
           <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px ` + completePercentageColor">
-            <a-statistic
-              title="总完成率"
-              :value="(totalReadPage/totalBookPage) * 100"
-              :precision="2"
-              suffix="%"
-              :value-style="{ color: completePercentageColor }"
-              style="margin-right: 50px"
-            >
-              <template #prefix>
-                <a-icon :type="(totalReadPage/totalBookPage) * 100 > 50 ? `check-circle` : `close-circle`" />
-              </template>
-            </a-statistic>
+            <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
+              <div class="spin-content">
+                <a-statistic
+                  title="总完成率"
+                  :value="(totalReadPage/totalBookPage) * 100"
+                  :precision="2"
+                  suffix="%"
+                  :value-style="{ color: completePercentageColor }"
+                  style="margin-right: 50px"
+                >
+                  <template #prefix>
+                    <a-icon :type="(totalReadPage/totalBookPage) * 100 > 50 ? `check-circle` : `close-circle`" />
+                  </template>
+                </a-statistic>
+              </div>
+            </a-spin>
           </a-card>
 
           <a-card class='countDownCard'>
-            <a-statistic
-              title="今日目标完成率"
-              :value="purposePercentage * 100"
-              :precision="2"
-              suffix="%"
-              value-style="{ color: grey } "
-              style="margin-right: 50px"
-            >
-              <template #prefix>
-                <a-icon type="clock-circle" />
-              </template>
-            </a-statistic>
+            <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
+              <div class="spin-content">
+                <a-statistic
+                  title="今日目标完成率"
+                  :value="purposePercentage * 100"
+                  :precision="2"
+                  suffix="%"
+                  value-style="{ color: grey } "
+                  style="margin-right: 50px"
+                >
+                  <template #prefix>
+                    <a-icon type="clock-circle" />
+                  </template>
+                </a-statistic>
+              </div>
+            </a-spin>
           </a-card>
 
-          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px grey`">
-            <a-statistic
-              title="今日已完成率"
-              :value="todayFinishPercentage * 100"
-              :precision="2"
-              suffix="%"
-              :value-style="todayFinishPercentage < purposePercentage ? { color: `red` }:{ color: `lightgreen` }"
-              style="margin-right: 50px"
-            >
-              <template #prefix>
-                <a-icon :type="todayFinishPercentage < purposePercentage ? `close-circle` : `check-circle`" />
-              </template>
-            </a-statistic>
+          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px pink`">
+            <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
+              <div class="spin-content">
+                <a-statistic
+                  title="今日已完成率"
+                  :value="todayFinishPercentage * 100"
+                  :precision="2"
+                  suffix="%"
+                  :value-style="todayFinishPercentage < purposePercentage ? { color: `red` }:{ color: `lightgreen` }"
+                  style="margin-right: 50px"
+                >
+                  <template #prefix>
+                    <a-icon :type="todayFinishPercentage < purposePercentage ? `close-circle` : `check-circle`" />
+                  </template>
+                </a-statistic>
+              </div>
+            </a-spin>
           </a-card>
         </a-row>
       </a-col>
       <a-col :span='17' :offset='1' class="right-content">
-        <div v-for="(item, index) in realForm" :key="index" style="margin-bottom: 50px">
-          <a-form :form='form'>
-            <a-divider>{{item.subject}}</a-divider>
-              <a-row type='flex'>
-                <a-col :span='24'>
-                  <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
-                    <a-col :span='2'>
-                      <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(0)"/>
+        <a-spin tip="正在加载，请耐心等待..." :spinning='loadPageSpin'>
+          <div class="spin-content">
+            <div v-for="(item, index) in realForm" :key="index" style="margin-bottom: 50px">
+              <a-form :form='form'>
+                <a-divider>{{item.subject}}</a-divider>
+                  <a-row type='flex'>
+                    <a-col :span='24'>
+                      <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
+                        <a-col :span='2'>
+                          <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(0)"/>
+                        </a-col>
+                        <a-col :span='20'>
+                          <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
+                            <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName, item1.pageCount, item1.totalPage)">编辑</a-button>
+                          </a-form-item>
+                        </a-col>
+                      </a-col>
                     </a-col>
-                    <a-col :span='20'>
-                      <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
-                        <a-input-number disabled v-decorator="[item1.engName, { initialValue: item1.pageCount, rules: [{ message: '请输入页码!' }] },]" placeholder='请输入页码'></a-input-number> / 共{{item1.totalPage}}页 <a-button type='link' @click="changePageNo(item.subject, item1.engName, item1.pageCount, item1.totalPage)">编辑</a-button>
-                      </a-form-item>
-                    </a-col>
-                  </a-col>
-                </a-col>
-              </a-row>
-          </a-form>
-          <a-divider>
-            <a-button type="default" icon="book" size="large" @click="createBook(item.subject)">
-              新建书籍
-            </a-button>
-            <!-- <a-button type='default' @click="showModal(item.type)">提交{{item.type}}进度</a-button> -->
-          </a-divider>
-          <a-modal :visible='confirmVisible' title='提交' @ok='handleOk()' @cancel='handleCancel'>
-            请确认上述信息，确认此次提交吗?
-          </a-modal>
-        </div>
+                  </a-row>
+              </a-form>
+              <a-divider>
+                <a-button type="default" icon="book" size="large" @click="createBook(item.subject)">
+                  新建书籍
+                </a-button>
+                <!-- <a-button type='default' @click="showModal(item.type)">提交{{item.type}}进度</a-button> -->
+              </a-divider>
+              <a-modal :visible='confirmVisible' title='提交' @ok='handleOk()' @cancel='handleCancel'>
+                请确认上述信息，确认此次提交吗?
+              </a-modal>
+            </div>
+          </div>
+        </a-spin>
       </a-col>
     </a-row>
       <a-modal title='新建科目' :visible='subjectVisible' @ok='handleSubject' @cancel='handleSubjectCancel'>
@@ -143,6 +167,12 @@
           </a-form-item>
         </a-form>
       </a-modal>
+
+      <a-modal title='学习历史' :visible='historyVisible' @ok='handleHistory' @cancel='handleHistoryCancel'>
+        <a-table size='small' :columns="columns" rowKey="today_date" :dataSource="dataSource">
+
+        </a-table>
+      </a-modal>
   </div>
 </template>
 
@@ -150,6 +180,8 @@
 export default {
   data() {
     return {
+      leftSpin: true,
+      loadPageSpin: true,
       form: this.$form.createForm(this),
       subjectForm: this.$form.createForm(this),
       bookForm: this.$form.createForm(this),
@@ -159,6 +191,7 @@ export default {
       subjectVisible: false,
       bookVisible: false,
       pageNoVisible: false,
+      historyVisible: false,
       currentEditSubject: '',
       currentEditBook: '',
       addToWhichSubject: '',
@@ -172,6 +205,18 @@ export default {
       todayFinishPercentage: 0,
       initSet: true,
       isShow: false,
+      columns: [
+        {
+          title: '记录日期',
+          dataIndex: 'today_date',
+          key: 'today_date'
+        },
+        {
+          title: '页码',
+          dataIndex: 'progress',
+          key: 'progress'
+        },
+      ],
       items: [
         {
           name: 'op1',
@@ -302,6 +347,8 @@ export default {
               this.completePercentageColor = 'red'
             }
           }
+          this.leftSpin = false
+          this.loadPageSpin = false
         }
       })
     },
@@ -448,6 +495,17 @@ export default {
       // aList[item][read] += read
       // aList[item][total] += total
       console.log(aList)
+    },
+    retrieveLearnHistory() {},
+    handleHistoryCancel() {
+      this.historyVisible = !this.historyVisible
+    },
+    handleHistory() {
+      this.$ajax.get({
+        url: this.$api.GET_STUDY_HISTORY
+      }).then(res => {
+        console.log(res)
+      })
     }
   },
 }
