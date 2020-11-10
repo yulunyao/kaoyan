@@ -35,8 +35,8 @@
         </a-layout>
         <a-layout-footer>Footer</a-layout-footer>
       </a-layout>
-      <a-modal :visible='visible' @ok='handleLogOut' @cancel='handleCancel'>
-        确认注销吗?
+      <a-modal :visible='visible' @ok='handleLogOut' @cancel='handleCancel' title='注销'>
+        确认登出账户吗?
       </a-modal>
     </div>
   </div>
@@ -117,5 +117,9 @@ export default {
 }
 #components-layout-demo-basic > .ant-layout:last-child {
   margin: 0;
+}
+
+.logoutModal {
+  padding: 100px
 }
 </style>

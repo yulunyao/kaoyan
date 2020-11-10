@@ -11,9 +11,9 @@
             <a-input
               v-decorator="[
                 'userName',
-                { rules: [{ required: true, message: 'Please input your username!' }] },
+                { rules: [{ required: true, message: '请输入用户名!' }] },
               ]"
-              placeholder="Username"
+              placeholder="用户名"
             >
               <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
             </a-input>
@@ -22,10 +22,10 @@
             <a-input
               v-decorator="[
                 'password',
-                { rules: [{ required: true, message: 'Please input your Password!' }] },
+                { rules: [{ required: true, message: '请输入密码!' }] },
               ]"
               type="password"
-              placeholder="Password"
+              placeholder="密码"
             >
               <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
             </a-input>
@@ -35,12 +35,24 @@
               登录
             </a-button>
             或
-            <a href="">
+            <a-button type='link' @click="showRegister">
               注册
-            </a>
+            </a-button>
           </a-form-item>
         </a-form>
       </a-card>
+      <a-modal :visible='registerVisible' @ok='handleRegister' title='注册用户' @cancel='handleRegisterCancel'>
+        <a-form :form='registerForm'>
+          <a-form-item>
+            <a-form-item label='用户名' :label-col="{span:4}" :wrapper-col="{span:20}">
+              <a-input v-decorator="['name', {rules: [{ required: true, message: '请输入用户名!' }] },]" placeholder='用户名'></a-input>
+            </a-form-item>
+            <a-form-item label='密码' :label-col="{span:4}" :wrapper-col="{span:20}">
+              <a-input v-decorator="['pass', {rules: [{ required: true, message: '请输入密码!' }] },]" placeholder='密码'></a-input>
+            </a-form-item>
+          </a-form-item>
+        </a-form>
+      </a-modal>
     <!-- </a-row> -->
   </div>
 </template>
@@ -50,6 +62,8 @@ import bgImg from '@/assets/images/learning-3245793_1920.jpg'
 export default {
   data() {
     return {
+      registerVisible: false,
+      registerForm: this.$form.createForm(this),
       form: this.$form.createForm(this),
       bgStyle: {'background-image': 'url(' + bgImg +')'},
     }
@@ -80,6 +94,33 @@ export default {
           })
         }
       })
+    },
+    showRegister() {
+      this.registerVisible = !this.registerVisible
+    },
+    handleRegister() {
+      this.registerForm.validateFields((err) => {
+        if(!err) {
+          const params = {
+            name: this.registerForm.getFieldValue('name'),
+            pass: this.registerForm.getFieldValue('pass'),
+            age: '1',
+            role_id: '1'
+          }
+          this.$ajax.post({
+            url: this.$api.POST_USER,
+            params: params
+          }).then(res => {
+            if(!!res) {
+              this.registerVisible = !this.registerVisible
+              this.$message.info('用户创建成功，请登录')
+            }
+          })
+        }
+      })
+    },
+    handleRegisterCancel() {
+      this.registerVisible = !this.registerVisible
     }
   },
 }

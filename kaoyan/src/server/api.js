@@ -5,6 +5,7 @@ export default {
    * 各类请求的BASE_URL
    */
   BASE_URL, 
+  POST_USER: BASE_URL + '/users/createUser',
   POST_LOGIN: BASE_URL + '/users/login',
   POST_USER_INFO: BASE_URL + '/users/token',
   POST_SUBJECTS: BASE_URL + '/subjects',
