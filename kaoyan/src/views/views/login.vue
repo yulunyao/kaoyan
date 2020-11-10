@@ -1,7 +1,7 @@
 <template>
-  <div class="loginBox" :style="bgStyle">
+  <div id="login-container" :style="bgStyle">
     <!-- <a-row type='flex' align='middle' justify='center' style="height: 1000px"> -->
-      <a-card title="用户登录" :bordered="true" style="width: 28%" class="loginCard">
+      <a-card title="用户登录" :bordered="true" style="width: 28%" class="login-box">
         <a-form
           id="components-form-demo-normal-login"
           :form="form"
@@ -95,16 +95,22 @@ export default {
   width: 100%;
 }
 
-.loginBox {
+#login-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 800px;
+  height: 100%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   align-items: center;
   justify-content: center;
+}
+
+.login-box {
+  width: 280px;
+  background: #ffffff;
+  border-radius: 5px;
 }
 
 /* .loginCard {

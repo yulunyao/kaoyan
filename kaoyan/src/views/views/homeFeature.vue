@@ -32,7 +32,7 @@
         <a-row type='flex' justify='space-between'>
           <!-- <a-progress type="circle" :percent="((totalReadPage/totalBookPage) * 100).toFixed(1)"/> -->
           <a-card class="countDownCard">
-            <a-statistic-countdown title="考研倒计时" :value="deadline" format="D 天 H 时 m 分 s 秒" />
+            <a-statistic-countdown title="目标倒计时" :value="deadline" format="D 天 H 时 m 分 s 秒" />
           </a-card>
 
           <a-card class='countDownCard'>
@@ -48,7 +48,7 @@
             </a-spin>
           </a-card>
 
-          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px ` + completePercentageColor">
+          <a-card v-if="realForm.length !== 0" :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px ` + completePercentageColor">
             <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
               <div class="spin-content">
                 <a-statistic
@@ -67,7 +67,7 @@
             </a-spin>
           </a-card>
 
-          <a-card class='countDownCard'>
+          <a-card v-if="realForm.length !== 0" class='countDownCard'>
             <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
               <div class="spin-content">
                 <a-statistic
@@ -86,7 +86,7 @@
             </a-spin>
           </a-card>
 
-          <a-card :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px pink`">
+          <a-card v-if="realForm.length !== 0" :style="`margin-bottom: 20px; text-align: left; width: 100%; box-shadow: 0px 0px 20px 5px pink`">
             <a-spin tip="正在加载，请耐心等待..." :spinning='leftSpin'>
               <div class="spin-content">
                 <a-statistic
@@ -107,7 +107,7 @@
         </a-row>
       </a-col>
       <a-col :span='17' :offset='1' class="right-content">
-        <a-spin tip="正在加载，请耐心等待..." :spinning='loadPageSpin'>
+        <a-spin tip="正在加载，请耐心等待..." :spinning='loadPageSpin' v-if="realForm.length !== 0">
           <div class="spin-content">
             <div v-for="(item, index) in realForm" :key="index" style="margin-bottom: 50px">
               <a-form :form='form'>
@@ -116,7 +116,7 @@
                     <a-col :span='24'>
                       <a-col :span='12' v-for="(item1, index1) in JSON.parse(item.lessons)" :key="index1">
                         <a-col :span='2'>
-                          <a-progress type="circle" width='48px' :percent="((item1.pageCount / item1.totalPage) * 100).toFixed(0)"/>
+                          <a-progress type="circle" :width='48' :percent="parseFloat(((item1.pageCount / item1.totalPage)*100).toFixed(0))"/>
                         </a-col>
                         <a-col :span='20'>
                           <a-form-item :label='item1.subject' :label-col="{span:8}" :wrapper-col="{span:16}">
@@ -128,8 +128,11 @@
                   </a-row>
               </a-form>
               <a-divider>
-                <a-button type="default" icon="book" size="large" @click="createBook(item.subject)">
+                <a-button type="default" icon="book" @click="createBook(item.subject)">
                   新建书籍
+                </a-button>
+                <a-button type="default" @click="deleteSubject(item.subject)">
+                  删除此科目
                 </a-button>
                 <!-- <a-button type='default' @click="showModal(item.type)">提交{{item.type}}进度</a-button> -->
               </a-divider>
@@ -139,8 +142,20 @@
             </div>
           </div>
         </a-spin>
+        <a-row v-if="realForm.length == 0">
+          <a-result class="resultNotion" status="warning" title="还没有科目，请先新建一个！">
+            <template #extra>
+              <a-button key="console" type="primary" @click="createSubject">
+                新建科目
+              </a-button>
+            </template>
+          </a-result>
+        </a-row>
       </a-col>
     </a-row>
+      <a-modal :visible='deleteSubjectVisible' @ok='handleDeleteSubject' @cancel='handleDeleteSubjectCancel'>
+        确认删除{{subjectToDelete}}吗？
+      </a-modal>
       <a-modal title='新建科目' :visible='subjectVisible' @ok='handleSubject' @cancel='handleSubjectCancel'>
         <a-form :form='subjectForm'>
           <a-form-item :label='`选项` + index' :label-col="{span:4}" :wrapper-col="{span:20}" v-for="(item, index) in items" :key="index">
@@ -169,9 +184,7 @@
       </a-modal>
 
       <a-modal title='学习历史' :visible='historyVisible' @ok='handleHistory' @cancel='handleHistoryCancel'>
-        <a-table size='small' :columns="columns" :dataSource="dataSource">
-
-        </a-table>
+        <a-table size='small' :columns="columns" :dataSource="dataSource" rowKey='today_date'></a-table>
       </a-modal>
   </div>
 </template>
@@ -193,6 +206,7 @@ export default {
       bookVisible: false,
       pageNoVisible: false,
       historyVisible: false,
+      deleteSubjectVisible: false,
       currentEditSubject: '',
       currentEditBook: '',
       addToWhichSubject: '',
@@ -206,6 +220,7 @@ export default {
       todayFinishPercentage: 0,
       initSet: true,
       isShow: false,
+      subjectToDelete: '',
       columns: [
         {
           title: '记录日期',
@@ -243,6 +258,27 @@ export default {
     this.getSubjectList()
   },
   methods: {
+    deleteSubject(subject) {
+      this.subjectToDelete = subject
+      this.deleteSubjectVisible = !this.deleteSubjectVisible
+    },
+    handleDeleteSubject() {
+      this.$ajax.delete({
+        url: this.$api.DELETE_SUBJECT + '/1',
+        params: {
+          subject: this.subjectToDelete
+        }
+      }).then(res => {
+        if(res.code == '200') {
+          this.deleteSubjectVisible = !this.deleteSubjectVisible
+          this.$message.success('删除成功!')
+          this.getSubjectList()
+        }
+      })
+    },
+    handleDeleteSubjectCancel() {
+      this.deleteSubjectVisible = !this.deleteSubjectVisible
+    },
     getSubjectList() {
       let aList = []
       this.finishPercentage = []
@@ -258,10 +294,12 @@ export default {
           for(let i = 0; i < content.length; i++) {
             console.log(JSON.parse(content[i].lessons))
             this.finishPercentage.push(JSON.parse(content[i].lessons))
-            for(let j = 0; j < JSON.parse(content[i].lessons).length; j++) {
-              this.totalReadPage += Number(JSON.parse(content[i].lessons)[j].pageCount)
-              this.totalBookPage += Number(JSON.parse(content[i].lessons)[j].totalPage)
-              // this.finishPercentage.push(content[i].lessons[j].totalPage)
+            if(!!content[i].lessons) {
+              for(let j = 0; j < JSON.parse(content[i].lessons).length; j++) {
+                this.totalReadPage += Number(JSON.parse(content[i].lessons)[j].pageCount)
+                this.totalBookPage += Number(JSON.parse(content[i].lessons)[j].totalPage)
+                // this.finishPercentage.push(content[i].lessons[j].totalPage)
+              }
             }
           }
 
@@ -385,8 +423,9 @@ export default {
       } else {
         this.initSet = false
       }
-      this.pageNoForm.setFieldsValue({'seenPage': pageCount})
-      this.pageNoForm.setFieldsValue({'totalPage': totalPage})
+
+      this.pageNoForm.getFieldDecorator('seenPage', { initialValue: pageCount })
+      this.pageNoForm.getFieldDecorator('totalPage', { initialValue: totalPage })
       this.pageNoVisible = !this.pageNoVisible
       console.log([subjectName, bookName])
     },
@@ -460,6 +499,7 @@ export default {
 
 <style scoped>
   .content {
+    height: 100%;
     width: 90%;
     margin: 0 auto;
   }
@@ -483,5 +523,10 @@ export default {
   }
   .winnieSnow{
     margin: 10px 0px;
+  }
+
+  .resultNotion {
+    width: 80%;
+    margin: 0 auto
   }
 </style>

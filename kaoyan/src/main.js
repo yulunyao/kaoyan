@@ -13,6 +13,7 @@ import 'moment/locale/zh-cn'
 moment.locale('zh-cn')  
 
 import {
+  Result,
   Switch,
   ConfigProvider,
   Statistic,
@@ -70,6 +71,7 @@ Vue.prototype.$message = message
 Vue.prototype.$cookie = jscookie
 Vue.prototype.$moment = moment
 
+Vue.use(Result)
 Vue.use(Avatar)
 Vue.use(Switch)
 Vue.use(ConfigProvider)
