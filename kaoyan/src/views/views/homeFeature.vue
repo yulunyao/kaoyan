@@ -1,17 +1,43 @@
 <template>
   <div class="content">
     <a-row>
-      <a-col :span='3' style="text-align: left">
-        <a-button type="default" icon="snippets" size="large" @click="createSubject">
-          新建学科
-        </a-button>
+      <a-col :span='7'>
+        <a-row style="text-align: left; height: 60px">
+          <!-- <a-col :span='12'>
+            <a-button type="default" icon="snippets" size="medium" @click="createSubject">
+              新建学科
+            </a-button>
+          </a-col>
+          <a-col :span='12'>
+            <a-button type="default" icon="history" size="medium" @click="retrieveLearnHistory">
+              学习历史
+            </a-button>
+          </a-col> -->
+          <a-button-group size="large">
+                <a-button type="default" @click="createSubject">
+                  <a-icon type="snippets" />新建学科信息
+                </a-button>
+                <a-button type="default" @click="retrieveLearnHistory">
+                  <a-icon type="history" /> 查看学习历史
+                </a-button>
+          </a-button-group>
+        </a-row>
+        <a-row style="text-align: left; height: 60px">
+          <a-col :span='24'>
+            <a-row>
+              <a-button-group size="large">
+                <a-button type="primary" @click="downloadTemplate">
+                  <a-icon type="download" />下载学科模板
+                </a-button>
+                <a-button type="primary" @click="uploadTemplate">
+                  <a-icon type="upload" /> 上传学科模板
+                </a-button>
+              </a-button-group>
+            </a-row>
+          </a-col>
+        </a-row>
       </a-col>
-      <a-col :span='3' style="text-align: left">
-        <a-button type="default" icon="history" size="large" @click="retrieveLearnHistory">
-          查看学习历史
-        </a-button>
-      </a-col>
-      <a-col :span='17' :offset='1'>
+      <a-col :span='16' :offset='1'>
         <a-row type='flex' align='middle' justify='space-between' class="winnieSnow">
           <!-- <img src="@/assets/images/snowwhite.png" height='150' style="text-align='left'"/>
           <img src="@/assets/images/winnie.png" height='150'/> -->
@@ -172,6 +198,18 @@
         </a-form>
       </a-modal>
 
+      <a-modal :visible='uploadTemplateVisible' @ok='uploadOk' @cancel='uploadCancel' title='上传模板'>
+        <a-upload
+          name="file"
+          :multiple="true"
+          action=""
+          :headers="headers"
+          @change="handleChange"
+        >
+          <a-button> <a-icon type="upload" /> Click to Upload </a-button>
+        </a-upload>
+      </a-modal>
+
       <a-modal :visible='pageNoVisible' @ok='handlePageNo' title='填写页码' @cancel='handlePageCancel'>
         <a-form :form='pageNoForm'>
           <a-form-item label='已看页码' :label-col="{span:4}" :wrapper-col="{span:20}">
@@ -221,6 +259,10 @@ export default {
       initSet: true,
       isShow: false,
       subjectToDelete: '',
+      uploadTemplateVisible: false,
+      headers: {
+        authorization: 'authorization-text',
+      },
       columns: [
         {
           title: '记录日期',
@@ -279,6 +321,19 @@ export default {
     handleDeleteSubjectCancel() {
       this.deleteSubjectVisible = !this.deleteSubjectVisible
     },
+    handleChange(info) {
+      if (info.file.status !== 'uploading') {
+        console.log(info.file, info.fileList)
+      }
+      if (info.file.status === 'done') {
+        this.$message.success(`${info.file.name} file uploaded successfully`)
+      } else if (info.file.status === 'error') {
+        this.$message.error(`${info.file.name} file upload failed.`)
+      }
+    },
+    uploadTemplate() {
+      this.uploadTemplateVisible = !this.uploadTemplateVisible
+    },
     getSubjectList() {
       let aList = []
       this.finishPercentage = []
@@ -336,6 +391,9 @@ export default {
     formParser(name) {
       this.singleForm = name
       return this.$form.createForm(this)
+    },
+    uploadCancel() {
+      this.uploadTemplateVisible = !this.uploadTemplateVisible
     },
     showModal(type) {
       console.log(type)
