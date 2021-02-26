@@ -38,6 +38,10 @@
             <a-button type='link' @click="showRegister">
               注册
             </a-button>
+            /
+            <a-button type='link' @click="gotoToolsColletion">
+              访问小工具大全
+            </a-button>
           </a-form-item>
         </a-form>
       </a-card>
@@ -97,6 +101,9 @@ export default {
     },
     showRegister() {
       this.registerVisible = !this.registerVisible
+    },
+    gotoToolsColletion() {
+      this.$router.push({name: 'toolCollection'})
     },
     handleRegister() {
       this.registerForm.validateFields((err) => {

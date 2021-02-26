@@ -206,7 +206,7 @@
           :headers="headers"
           @change="handleChange"
         >
-          <a-button> <a-icon type="upload" /> Click to Upload </a-button>
+          <a-button> <a-icon type="upload" /> 点击上传 </a-button>
         </a-upload>
       </a-modal>
 
@@ -293,7 +293,7 @@ export default {
         }
       ],
       realForm: [],
-      deadline: 1608911999000,
+      deadline: 1608911999000, // 2020年12月26日
     }
   },
   mounted() {
